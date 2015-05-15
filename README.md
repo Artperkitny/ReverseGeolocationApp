@@ -3,4 +3,4 @@ Using googles maps api reverse geolocation function, I converted logitude and la
 
 
 <h4>Screenshot</h4>
-<img src="http://54.165.129.99/Img/Screenshot_2015-05-14-21-05-48.png" width="100%"/>
+<img src="http://54.165.129.99/Img/Screenshot_2015-05-14-21-05-48.png" width="250px"/>
