@@ -1,0 +1,181 @@
+<!doctype html>
+<html class="no-js" lang="en">
+  <head>
+    <meta charset="utf-8" />
+	<meta content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0' name='viewport' />
+    <title>Geo Applet</title>
+    <link rel="stylesheet" href="css/foundation.css" />
+	<link rel="shortcut icon" href="http://www.childrenoftheearth.org/Navy%20Pages/Earth_anim.gif">
+	<script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDsz1Bvlh_Zb7tKCMB_JUgOgQGBk8VQ3Q8&sensor=FALSE"></script>
+    <script src="js/vendor/modernizr.js"></script>
+  </head>
+  <body>
+		<div class="large-12 columns" id="Contain">
+			<select id="type">
+				<option selected>DEFAULT</option>
+				<option value="Ping">Ping</option>
+				<option value="Phone">Phone</option>
+				<option value="Album">Album</option>
+				<option value="Text">Text</option>
+				<option value="Video">Video</option>
+				<option value="Activity">Activity</option>
+                <option value="Motel">Motel</option>
+				<option value="Airbnb">Airbnb</option>
+				<option value="Camp">Camp</option>
+				<option value="Cafe">Cafe</option>
+				<option value="Gas">Gas</option>
+				<option value="Food">Food</option>
+				<option value="Gym">Gym</option>
+			</select>
+	  </div>
+    <script src="js/vendor/jquery.js"></script>
+    <script src="js/foundation.min.js"></script>
+    <script>
+      $(document).foundation();
+	  
+	  //vars
+		var mainDiv = "<div class='row'>"+
+				"<button class='button expand' onclick='getLocation()'>Get Location</button>"+
+				"<label>Tag"+
+					"<input id='Tag' type='text'/>"+
+				"</label"+
+				"<label>Lat"+
+					"<input id='Lat' type='text'/>"+
+				"</label>"	+
+				"<label>Long"+
+					"<input id='Long' type='text'/>"+
+				"</label>"+
+				"<label>Locality"+
+					"<input id='Locality' type='text'/>"+
+				"</label>"+
+				"<label>Territory"+
+					"<input id='Territory' type='text'/>"+
+				"</label>"+
+				"<label>Country"+
+					"<input id='Country' type='text'/>"+
+				"</label>"+
+				"<button id='submit' class='button expand' onclick='submit()'>Submit</button>"+
+			"</div>"
+			
+		var cameraPhotoMono = "<input type='file' accept='image/*;capture=camera'>"
+		var cameraPhotoMulti = "<input type='file' accept='image/*;capture=camera' multiple>"
+		var cameraVideo = "<input type='file' accept='video/*;capture=camcorder'>"
+		var generalMedia = "<input type='file'>"
+		var notepad = "<textarea rows='20' cols='50'></textarea>"
+		var x = document.getElementById("demo");
+
+		$(document).on("change","#type",function(){
+			resetScreen()
+			switch($("#type").val()){
+				case "Ping":
+					$("#type").after(mainDiv)
+					break;
+					
+				case "Phone":
+					$("#type").after(mainDiv+cameraPhotoMulti)
+					break;
+					
+				case "Album":
+					$("#type").after(mainDiv)
+					break;
+					
+				case "Text":
+					$("#type").after(mainDiv)
+					$("#submit").before(notepad)
+					break;
+					
+				case "Video":
+					$("#type").after(mainDiv+cameraVideo)
+					break;
+					
+				case "Activity":
+					$("#type").after(mainDiv+generalMedia)
+					break;
+					
+				case "Motel":
+					$("#type").after(mainDiv)
+					break;
+					
+				case "Airbnb":
+					$("#type").after(mainDiv)
+					break;
+					
+				case "Camp":
+					$("#type").after(mainDiv)
+					break;
+                case "Cafe":
+					$("#type").after(mainDiv)
+					break;
+                case "Gas":
+					$("#type").after(mainDiv)
+					break;
+                case "Food":
+					$("#type").after(mainDiv)
+					break;
+                case "Gym":
+					$("#type").after(mainDiv)
+					break;
+			}
+		});
+		
+		function resetScreen(){
+			var $container = $('#Contain')
+			$noRemove = $container.find('#type')
+			$container.html($noRemove)
+		}
+		
+		function getLocation() {
+			if (navigator.geolocation) {
+				navigator.geolocation.getCurrentPosition(showPosition);
+			} else { 
+				alert("Geo error");
+			}
+		}
+
+		function showPosition(position) {
+			$("#Lat").val(position.coords.latitude);
+			$("#Long").val(position.coords.longitude);
+			var Locality
+			var Country
+			var Territory
+			
+			var geocoder = new google.maps.Geocoder();
+			var latlng = new google.maps.LatLng(position.coords.latitude,position.coords.longitude);
+			geocoder.geocode({'latLng': latlng}, function(results, status) {
+			  if (status == google.maps.GeocoderStatus.OK) {
+                 for (var x=0; x<(results[0].address_components).length;x+=1){
+                    var  types = (results[0].address_components[x].types)
+                    for(var y=0;y<types.length;y+=1){
+                        switch(types[y]){
+                            case "locality":
+                                $("#Locality").val(results[0].address_components[x].long_name)
+                                break;
+                            case "administrative_area_level_1":
+                                $("#Territory").val(results[0].address_components[x].long_name)
+                                break;
+                            case "country":
+                                $("#Country").val(results[0].address_components[x].long_name)
+                                break;
+                        }
+                    }
+                 }
+			  }else{
+				alert("Geocoder failed due to: " + status);
+			  }
+			});
+		}
+	  
+		function submit(){
+			var data = [$("#Lat").val(),$("#Long").val(),$("#Tag").val(),$("#type").val(),$("#Locality").val(),$("#Territory").val(),$("#Country").val()];
+			$.ajax({
+				url:"submit.php",
+				data: {data:JSON.stringify(data)},
+				success:function(){
+					resetScreen()
+				}
+			});
+		}	
+	  
+    </script>
+  </body>
+</html>
